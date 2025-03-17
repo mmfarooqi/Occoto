@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="circuit" width="50" height="50" patternUnits="userSpaceOnUse">
+      <path d="M0 25h15c5 0 5-10 10-10h25" stroke="rgba(255,0,0,0.2)" fill="none" stroke-width="1"/>
+      <path d="M0 35h35c5 0 5 10 10 10h5" stroke="rgba(255,0,0,0.1)" fill="none" stroke-width="1"/>
+      <circle cx="45" cy="25" r="2" fill="rgba(255,0,0,0.2)"/>
+      <circle cx="45" cy="45" r="2" fill="rgba(255,0,0,0.1)"/>
+    </pattern>
+  </defs>
+  <rect width="200" height="200" fill="url(#circuit)" />
+</svg> 
