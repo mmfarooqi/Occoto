@@ -11,6 +11,7 @@ export default function MobileNav() {
     { href: '/services', label: 'Services' },
     { href: '/portfolio', label: 'Portfolio' },
     { href: '/blog', label: 'Blog' },
+    { href: '/ar-vision', label: 'AR Vision' },
     { href: '/contact', label: 'Contact Us' },
   ];
 

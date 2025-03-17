@@ -74,7 +74,7 @@ export default function Home() {
 
         <div className="container mx-auto px-4 flex flex-col items-center text-center z-10">
           <motion.div 
-            className="mb-8 w-[220px] h-[70px] relative"
+            className="mb-8 w-[250px] h-[70px] relative"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ 
