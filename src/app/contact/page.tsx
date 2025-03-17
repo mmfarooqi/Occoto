@@ -75,7 +75,7 @@ const socialLinks = [
   {
     icon: FaInstagram,
     label: "Instagram",
-    href: "https://instagram.com/occoto",
+    href: "https://instagram.com/occoto1",
     color: "from-pink-600 to-purple-400"
   }
 ];

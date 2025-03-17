@@ -13,6 +13,7 @@ export default function ARVisionPage() {
   const [showAchievement, setShowAchievement] = useState(false);
   const [randomValues, setRandomValues] = useState<any[]>([]);
   const [particleValues, setParticleValues] = useState<any[]>([]);
+  const [audioLoaded, setAudioLoaded] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const voiceRef = useRef<HTMLAudioElement | null>(null);
   const containerRef = useRef(null);
@@ -72,37 +73,77 @@ export default function ARVisionPage() {
   const springX = useSpring(cursorX, { stiffness: 100, damping: 30 });
   const springY = useSpring(cursorY, { stiffness: 100, damping: 30 });
 
-  // Generate consistent random values for 3D objects and particles
+  // Initialize random values for 3D objects
   useEffect(() => {
-    if (typeof window !== 'undefined' && randomValues.length === 0) {
-      // Generate random values for 3D objects
-      const objectValues = Array.from({ length: 5 }, () => ({
-        size: 50 + Math.random() * 100,
+    if (typeof window !== 'undefined') {
+      // Create random 3D objects
+      const objects = Array.from({ length: 20 }, () => ({
         x: Math.random() * 100,
         y: Math.random() * 100,
-        z: Math.random() * 500,
+        z: Math.random() * 500 - 250,
+        size: Math.random() * 50 + 20,
         rotateX: Math.random() * 360,
         rotateY: Math.random() * 360,
         rotateZ: Math.random() * 360,
-        duration: 30 + Math.random() * 20,
+        duration: Math.random() * 20 + 10,
         isRounded: Math.random() > 0.5
       }));
+      setRandomValues(objects);
       
-      // Generate random values for particles
-      const particles = Array.from({ length: 80 }, () => ({
-        size: 5 + Math.random() * 15,
+      // Create particles
+      const particles = Array.from({ length: 50 }, () => ({
         x: Math.random() * 100,
         y: Math.random() * 100,
-        depth: 0.5 + Math.random() * 0.5,
-        animX: Math.random() * 100 - 50,
-        animY: Math.random() * 100 - 50,
-        duration: 20 + Math.random() * 20
+        size: Math.random() * 10 + 2,
+        depth: Math.random() * 0.8 + 0.2,
+        duration: Math.random() * 5 + 3,
+        animY: (Math.random() - 0.5) * 100,
+        animX: (Math.random() - 0.5) * 100,
       }));
-      
-      setRandomValues(objectValues);
       setParticleValues(particles);
+      
+      // Initialize audio context for better mobile support
+      const initializeAudio = () => {
+        if (!audioLoaded) {
+          // Create audio elements
+          audioRef.current = new Audio('/ar-vision/audio/ambient.mp3');
+          if (audioRef.current) {
+            audioRef.current.loop = true;
+            audioRef.current.volume = 0.3;
+            audioRef.current.preload = 'auto';
+            
+            audioRef.current.addEventListener('canplaythrough', () => {
+              console.log('Background audio loaded and ready to play');
+              setAudioLoaded(true);
+            });
+            
+            audioRef.current.addEventListener('error', (e) => {
+              console.error('Audio loading error:', e);
+            });
+          }
+        }
+      };
+      
+      // Initialize audio on first user interaction
+      const handleFirstInteraction = () => {
+        initializeAudio();
+        window.removeEventListener('click', handleFirstInteraction);
+        window.removeEventListener('touchstart', handleFirstInteraction);
+      };
+      
+      // Add event listeners for first interaction
+      window.addEventListener('click', handleFirstInteraction);
+      window.addEventListener('touchstart', handleFirstInteraction);
+      
+      // Also try to initialize audio immediately
+      initializeAudio();
+      
+      return () => {
+        window.removeEventListener('click', handleFirstInteraction);
+        window.removeEventListener('touchstart', handleFirstInteraction);
+      };
     }
-  }, [randomValues.length]);
+  }, [audioLoaded]);
 
   useEffect(() => {
     // Set loaded state after a delay to trigger animations
@@ -115,15 +156,6 @@ export default function ARVisionPage() {
       setActiveFeature((prev) => (prev + 1) % features.length);
     }, 5000);
     
-    // Initialize audio
-    if (typeof window !== 'undefined') {
-      audioRef.current = new Audio('/ar-vision/audio/ambient.mp3');
-      if (audioRef.current) {
-        audioRef.current.loop = true;
-        audioRef.current.volume = 0.3;
-      }
-    }
-
     return () => {
       clearTimeout(timer);
       clearInterval(featureInterval);
@@ -141,13 +173,63 @@ export default function ARVisionPage() {
   // Play feature voice narration when feature changes
   useEffect(() => {
     if (audioEnabled && features[activeFeature]?.voiceClip) {
+      // Clean up previous voice audio if it exists
       if (voiceRef.current) {
         voiceRef.current.pause();
+        voiceRef.current.src = '';
+        voiceRef.current.load();
       }
+      
+      // Create new voice audio
       voiceRef.current = new Audio(features[activeFeature].voiceClip);
+      
       if (voiceRef.current) {
         voiceRef.current.volume = 0.7;
-        voiceRef.current.play().catch(e => console.error("Voice playback failed:", e));
+        voiceRef.current.preload = 'auto';
+        
+        // Add error handling
+        voiceRef.current.addEventListener('error', (e) => {
+          console.error('Voice audio error:', e);
+        });
+        
+        // Log when voice starts playing
+        voiceRef.current.addEventListener('play', () => {
+          console.log('Voice narration playing:', features[activeFeature].title);
+        });
+        
+        // Create a user gesture context for autoplay
+        const playPromise = voiceRef.current.play();
+        
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              console.log('Voice narration started successfully');
+            })
+            .catch(e => {
+              console.error("Voice playback failed:", e);
+              
+              // If we're in a browser that requires user interaction for audio
+              if (e.name === 'NotAllowedError') {
+                console.log('Voice autoplay prevented. Will try again on next user interaction.');
+                
+                // Set up a one-time click handler to play the voice
+                const playOnInteraction = () => {
+                  if (voiceRef.current) {
+                    voiceRef.current.play()
+                      .then(() => console.log('Voice now playing after user interaction'))
+                      .catch(err => console.error('Still failed to play voice:', err));
+                  }
+                  
+                  // Remove the event listener after first use
+                  window.removeEventListener('click', playOnInteraction);
+                  window.removeEventListener('touchstart', playOnInteraction);
+                };
+                
+                window.addEventListener('click', playOnInteraction);
+                window.addEventListener('touchstart', playOnInteraction);
+              }
+            });
+        }
       }
     }
   }, [activeFeature, audioEnabled, features]);
@@ -187,10 +269,60 @@ export default function ARVisionPage() {
     if (audioRef.current) {
       if (audioEnabled) {
         audioRef.current.pause();
+        console.log('Audio paused');
       } else {
-        audioRef.current.play().catch(e => console.error("Audio playback failed:", e));
+        // Create a user gesture context for autoplay
+        const playPromise = audioRef.current.play();
+        
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              console.log('Audio playing successfully');
+            })
+            .catch(e => {
+              console.error("Audio playback failed:", e);
+              
+              // If autoplay was prevented, try a different approach
+              if (e.name === 'NotAllowedError') {
+                console.log('Autoplay prevented. Please interact with the page first.');
+                
+                // Create a new audio context on user interaction
+                const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+                if (AudioContext) {
+                  const audioContext = new AudioContext();
+                  // Resume the audio context
+                  if (audioContext.state === 'suspended') {
+                    audioContext.resume().then(() => {
+                      console.log('AudioContext resumed successfully');
+                      // Try playing again
+                      audioRef.current?.play()
+                        .then(() => console.log('Audio now playing after context resume'))
+                        .catch(err => console.error('Still failed to play audio:', err));
+                    });
+                  }
+                }
+              }
+            });
+        }
       }
       setAudioEnabled(!audioEnabled);
+    } else {
+      console.error('Audio reference not available');
+      
+      // Try to initialize audio on demand
+      if (typeof window !== 'undefined' && !audioRef.current) {
+        audioRef.current = new Audio('/ar-vision/audio/ambient.mp3');
+        if (audioRef.current) {
+          audioRef.current.loop = true;
+          audioRef.current.volume = 0.3;
+          audioRef.current.play()
+            .then(() => {
+              console.log('Audio initialized and playing on demand');
+              setAudioEnabled(true);
+            })
+            .catch(e => console.error("On-demand audio initialization failed:", e));
+        }
+      }
     }
     
     // Increment interaction count for achievement system
