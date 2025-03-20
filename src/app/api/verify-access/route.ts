@@ -11,6 +11,9 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { password } = body;
 
+    console.log('Received password:', password);
+    console.log('Expected password:', ACCESS_PASSWORD);
+
     if (password !== ACCESS_PASSWORD) {
       return NextResponse.json(
         { error: 'Invalid access code' },
@@ -31,7 +34,7 @@ export async function POST(request: Request) {
       { status: 200 }
     );
 
-    response.cookies.set('secureAccessToken', token, {
+    response.cookies.set('accessToken', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
@@ -40,6 +43,7 @@ export async function POST(request: Request) {
 
     return response;
   } catch (error) {
+    console.error('Error in verify-access:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

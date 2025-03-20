@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 
-export default function Magic() {
+export default function SecureAccess() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -25,9 +25,10 @@ export default function Magic() {
       });
 
       if (response.ok) {
+        // Set a secure session token
         const data = await response.json();
-        localStorage.setItem('accessToken', data.token);
-        router.push('/dashboard');
+        localStorage.setItem('secureAccessToken', data.token);
+        router.push('/secure-dashboard');
       } else {
         setError('Invalid access code');
       }
@@ -47,7 +48,7 @@ export default function Magic() {
         className="bg-gray-800/50 backdrop-blur-lg rounded-2xl p-8 max-w-md w-full shadow-2xl border border-gray-700"
       >
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Magic</h1>
+          <h1 className="text-3xl font-bold text-white mb-2">Secure Access</h1>
           <p className="text-gray-400">Enter your access code to continue</p>
         </div>
 
