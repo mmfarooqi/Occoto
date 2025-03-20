@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { sign } from 'jsonwebtoken';
+import { SignJWT } from 'jose';
 
 // This should be stored in environment variables in production
-const SECRET_KEY = process.env.JWT_SECRET || 'your-secret-key-here';
+const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET || 'your-secret-key-here');
 const ACCESS_PASSWORD = process.env.ACCESS_PASSWORD || 'your-secure-password-here';
 
 export async function POST(request: Request) {
@@ -21,12 +21,11 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create a secure token
-    const token = sign(
-      { authenticated: true },
-      SECRET_KEY,
-      { expiresIn: '24h' }
-    );
+    // Create a secure token using jose instead of jsonwebtoken
+    const token = await new SignJWT({ authenticated: true })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setExpirationTime('24h')
+      .sign(SECRET_KEY);
 
     // Set the token in an HTTP-only cookie
     const response = NextResponse.json(
