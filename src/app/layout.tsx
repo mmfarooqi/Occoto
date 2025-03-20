@@ -54,6 +54,10 @@ export default function RootLayout({
               </div>
               <div className="text-center text-gray-600">
                 © {new Date().getFullYear()} OCCOTO. All rights reserved.
+                <div className="mt-2 space-x-4">
+                  <Link href="/privacy-policy" className="text-gray-600 hover:text-red-600 transition-colors">Privacy Policy</Link>
+                  <Link href="/cookie-policy" className="text-gray-600 hover:text-red-600 transition-colors">Cookie Policy</Link>
+                </div>
               </div>
             </div>
           </div>
