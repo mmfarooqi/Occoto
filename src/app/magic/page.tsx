@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 
-export default function SecureAccess() {
+export default function Magic() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -48,7 +48,7 @@ export default function SecureAccess() {
         className="bg-gray-800/50 backdrop-blur-lg rounded-2xl p-8 max-w-md w-full shadow-2xl border border-gray-700"
       >
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Secure Access</h1>
+          <h1 className="text-3xl font-bold text-white mb-2">Magic Access</h1>
           <p className="text-gray-400">Enter your access code to continue</p>
         </div>
 

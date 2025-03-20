@@ -1,0 +1,25 @@
+{
+  "project_root": "/Users/mphenom-m4/Documents/Mudassir/Occoto",
+  "development_start_date": "2024-03-19",
+  "current_branch": "v2-branch",
+  "original_version": "v2",
+  "website_url": "www.occoto.com",
+  "development_server": "http://127.0.0.1:3001",
+  "node_version": "v22.14.0",
+  "npm_version": "10.9.2",
+  "last_known_state": {
+    "dependencies_installed": true,
+    "server_running": false,
+    "server_start_time": "2024-03-19T03:25:00Z"
+  },
+  "important_paths": {
+    "source": "/Users/mphenom-m4/Documents/Mudassir/Occoto/src",
+    "public": "/Users/mphenom-m4/Documents/Mudassir/Occoto/public",
+    "components": "/Users/mphenom-m4/Documents/Mudassir/Occoto/src/app/components"
+  },
+  "server_status": {
+    "url": "http://127.0.0.1:3001",
+    "framework": "Next.js 14.1.0",
+    "status": "pending"
+  }
+} 
